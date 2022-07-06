@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.UserInfo;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -42,6 +43,17 @@ public class JdbcUserDao implements UserDao {
             users.add(user);
         }
         return users;
+    }
+
+    public List<UserInfo> getAllUserInfo() {
+        List<UserInfo> userInfoList = new ArrayList<>();
+        String sql = "SELECT username, account_id FROM tenmo_user JOIN account as a ON a.user_id = tenmo_user.user_id;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        while(results.next()) {
+            UserInfo userInfo = mapRowToUserInfo(results);
+            userInfoList.add(userInfo);
+        }
+        return userInfoList;
     }
 
     @Override
@@ -86,5 +98,12 @@ public class JdbcUserDao implements UserDao {
         user.setActivated(true);
         user.setAuthorities("USER");
         return user;
+    }
+
+    private UserInfo mapRowToUserInfo(SqlRowSet rs) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserName(rs.getString("username"));
+        userInfo.setAccountId(rs.getLong("account_id"));
+        return userInfo;
     }
 }

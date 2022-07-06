@@ -45,5 +45,12 @@ CREATE TABLE transfer (
 	CONSTRAINT CHK_differentAccounts CHECK (toAccount_id != fromAccount_id)
 );
 
+INSERT INTO tenmo_user (username, password_hash) values ('patrickmorris', '$2a$10$xX/UuWqKOWI1XJ8f4uCU/uXCt8H2vW7rt/hKol9OggwmcGtbxN06S');
+INSERT INTO tenmo_user (username, password_hash) values ('kitmorgan', '$2a$10$yo42jI1ZzM8WPJP4R7sQKOQ08jXPJ1PXd2TTbwPmn9eTNrw.M3vWm');
+INSERT INTO tenmo_user (username, password_hash) values ('user3', '$2a$10$ADG3yPwo0a8S7crm4qKqW.PxMHqYPwGJOJWLE6UvBHnyaGFhxDhzS');
+
+INSERT INTO account (user_id, balance) values (1001, 1000);
+INSERT INTO account (user_id, balance) values (1002, 1000);
+INSERT INTO account (user_id, balance) values (1003, 1000);
 
 COMMIT;
