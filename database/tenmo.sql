@@ -38,11 +38,13 @@ CREATE TABLE transfer (
 	toAccount_id int NOT NULL,
 	fromAccount_id  int NOT NULL,
 	status varchar NOT NULL,
+	transfer_amount money NOT NULL,
 	CONSTRAINT PK_transfer PRIMARY KEY (transfer_id),
 	CONSTRAINT FK_toAccount FOREIGN KEY (toAccount_id) REFERENCES account (account_id),
 	CONSTRAINT FK_fromAccount FOREIGN KEY (fromAccount_id) REFERENCES account (account_id),
 	CONSTRAINT CHK_statusValues CHECK (status IN ('ACCEPTED', 'REJECTED', 'PENDING')),
-	CONSTRAINT CHK_differentAccounts CHECK (toAccount_id != fromAccount_id)
+	CONSTRAINT CHK_differentAccounts CHECK (toAccount_id != fromAccount_id),
+	CONSTRAINT CHK_transferAmount CHECK (transfer_amount > CAST(0.00 AS money))
 );
 
 INSERT INTO tenmo_user (username, password_hash) values ('patrickmorris', '$2a$10$xX/UuWqKOWI1XJ8f4uCU/uXCt8H2vW7rt/hKol9OggwmcGtbxN06S');

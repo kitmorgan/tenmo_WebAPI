@@ -90,6 +90,23 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
+    @Override
+    public BigDecimal getBalance(String username) {
+        String sql = "SELECT balance FROM tenmo_user JOIN account AS a ON a.user_id = tenmo_user.user_id WHERE username = ?";
+        BigDecimal balance;
+        try{
+            balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, username);
+        }catch (DataAccessException e){
+            balance = null;
+        }
+        return balance;
+    }
+
+    public boolean sendMoney(String fromUsername, String toUserName, BigDecimal transferAmount){
+        //TODO: Create sql string, logic to make sure 5.1 - 5.8 are good, return true, prob add some errors throwing
+        return false; //change me!
+    }
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
         user.setId(rs.getLong("user_id"));
@@ -106,4 +123,5 @@ public class JdbcUserDao implements UserDao {
         userInfo.setAccountId(rs.getLong("account_id"));
         return userInfo;
     }
+
 }
