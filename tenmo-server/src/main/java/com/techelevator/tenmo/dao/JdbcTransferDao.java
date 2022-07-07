@@ -12,6 +12,9 @@ import java.util.List;
 public class JdbcTransferDao implements TransferDao {
 
         private JdbcTemplate jdbcTemplate;
+        public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+                this.jdbcTemplate = jdbcTemplate;
+        }
 
         @Override
         public String updateTransfer(Transfer transfer, int statusId) {
@@ -19,26 +22,27 @@ public class JdbcTransferDao implements TransferDao {
         }
 
         @Override
-        public String transferRequest(int fromUserId, int toUserId, BigDecimal total) {
+        public String transferRequest(String fromUsername, String toUsername, BigDecimal total) {
                 return null;
         }
 
         @Override
-        public boolean sendTransfer (int fromUserId, int toUserId, BigDecimal transferAmount) {
-                if (checkBalance(fromUserId, transferAmount)) {
-                        String sql = "UPDATE account set balance = balance - ? where user_id = ?;" +
-                                " UPDATE account set balance = balance + ? where user_id = ?;" + "INSERT INTO transfer (toUser_id, fromUser_id, status, transfer_amount) VALUES (1001, 1002, 'APPROVED', 20);";
-                        jdbcTemplate.update(sql, fromUserId, toUserId);
+        public boolean sendTransfer (String fromUsername, String toUsername, BigDecimal transferAmount) {
+                if (checkBalance(fromUsername, transferAmount)) {
+                        String sql = "UPDATE account SET balance = account.balance - ? FROM account as ac JOIN tenmo_user as tu ON ac.user_id = tu.user_id WHERE username = '?';" +
+                                " UPDATE account SET balance = account.balance + ? FROM account as ac JOIN tenmo_user as tu ON ac.user_id = tu.user_id WHERE username = '?';";
+                        jdbcTemplate.update(sql, transferAmount, fromUsername, transferAmount, toUsername);
+                        jdbcTemplate.update(" INSERT INTO transfer (toUsername, fromUsername, status, transfer_amount) VALUES (?, ?, 'APPROVED', ?);", toUsername, fromUsername, transferAmount);
                         return true;
                 }
                 return false;
         }
 
-        public boolean checkBalance(int fromUserId, BigDecimal transferAmount){
-                String sql = "SELECT balance FROM account where user_id = ?";
+        public boolean checkBalance(String fromUsername, BigDecimal transferAmount){
+                String sql = "SELECT balance FROM account JOIN tenmo_user as tu ON tu.user_id = account.user_id where username = ?";
                 BigDecimal balance;
                 try{
-                        balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, fromUserId);
+                        balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, fromUsername);
                 }catch (DataAccessException e){
                         balance = null;
                 }

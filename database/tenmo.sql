@@ -35,15 +35,15 @@ CREATE TABLE account (
 
 CREATE TABLE transfer (
 	transfer_id serial,
-	toUser_id int NOT NULL,
-	fromUser_id  int NOT NULL,
+	toUsername varchar(50) NOT NULL,
+	fromUsername varchar(50) NOT NULL,
 	status varchar NOT NULL,
 	transfer_amount money NOT NULL,
 	CONSTRAINT PK_transfer PRIMARY KEY (transfer_id),
-	CONSTRAINT FK_toUser_id FOREIGN KEY (toUser_id) REFERENCES tenmo_user (user_id),
-	CONSTRAINT FK_fromUser_id FOREIGN KEY (fromUser_id) REFERENCES tenmo_user (user_id),
+	CONSTRAINT FK_toUsername FOREIGN KEY (toUsername) REFERENCES tenmo_user (username),
+	CONSTRAINT FK_fromUsername FOREIGN KEY (fromUsername) REFERENCES tenmo_user (username),
 	CONSTRAINT CHK_statusValues CHECK (status IN ('APPROVED', 'REJECTED', 'PENDING')),
-	CONSTRAINT CHK_differentUsers CHECK (toUser_id != fromUser_id),
+	CONSTRAINT CHK_differentUsers CHECK (toUsername != fromUsername),
 	CONSTRAINT CHK_transferAmount CHECK (transfer_amount > CAST(0.00 AS money))
 );
 
