@@ -9,9 +9,9 @@ public interface TransferDao {
 
     public String updateTransfer (Transfer transfer, int statusId);
 
-    public String transferRequest (int fromUser, int toUser, BigDecimal total);
+    public String transferRequest (int fromUserId, int toUserId, BigDecimal transferAmount);
 
-    public String transferSent (int fromUser, int toUser, BigDecimal total);
+    public boolean sendTransfer (int fromUserId, int toUserId, BigDecimal transferAmount);
 
     public List<Transfer> pendingRequests (int userId);
 
