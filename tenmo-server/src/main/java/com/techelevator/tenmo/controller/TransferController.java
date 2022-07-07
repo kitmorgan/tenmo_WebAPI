@@ -34,22 +34,24 @@ public class TransferController {
     @Autowired
     private TransferDao transferDao;
 
-    public TransferController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, TransferDao transferDao){
+    public TransferController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, TransferDao transferDao) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.transferDao = transferDao;
     }
 
     @RequestMapping(path = "/transfers", method = RequestMethod.GET)
-    public List<Transfer> allTransfers(Principal principal){
+    public List<Transfer> allTransfers(Principal principal) {
+
         List<Transfer> transfers = transferDao.allTransfers(principal.getName());
+
         return transfers;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/transfers/send", method = RequestMethod.POST)
-    public void sendMoney(@RequestBody Transfer moneyTransfer, Principal principal){
-        if(principal.getName().equals(moneyTransfer.getToUsername())){
+    public void sendMoney(@RequestBody Transfer moneyTransfer, Principal principal) {
+        if (principal.getName().equals(moneyTransfer.getToUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You just tried to send money to yourself! You don't need us to do that.");
         }
         Boolean success = false;
@@ -58,8 +60,8 @@ public class TransferController {
             if (!success) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transfer Failed!");
             }
-        }catch (DataIntegrityViolationException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User "+ moneyTransfer.getToUsername() + " does not exist.");
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User " + moneyTransfer.getToUsername() + " does not exist.");
         }
     }
 

@@ -102,11 +102,6 @@ public class JdbcUserDao implements UserDao {
         return balance;
     }
 
-    public boolean sendMoney(String fromUsername, String toUserName, BigDecimal transferAmount){
-        //TODO: Create sql string, logic to make sure 5.1 - 5.8 are good, return true, prob add some errors throwing
-        return false; //change me!
-    }
-
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
         user.setId(rs.getLong("user_id"));

@@ -7,15 +7,7 @@ public class UserInfo {
 
     private String userName;
     private Long accountId;
-    private BigDecimal balance;
 
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
 
     public String getUserName() {
         return userName;

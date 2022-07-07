@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,19 +63,24 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public List<Transfer> allTransfers(String username) {
-        String sql = "select transfer_id, tousername, fromusername, status, transfer_amount from transfer WHERE tousername = ? OR fromusername = ?;";
-        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username, username);
-        List<Transfer> transfers = new ArrayList<>();
-        while (result.next()) {
-            Transfer transfer = new Transfer();
-            transfer.setTransferId(result.getInt("transfer_id"));
-            transfer.setToUsername(result.getString("tousername"));
-            transfer.setFromUsername(result.getString("fromusername"));
-            transfer.setStatus(result.getString("status"));
-            transfer.setTransferAmount(result.getBigDecimal("transfer_amount"));
-            transfers.add(transfer);
+        try {
+            String sql = "select transfer_id, tousername, fromusername, status, transfer_amount from transfer WHERE tousername = ? OR fromusername = ?;";
+            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username, username);
+            List<Transfer> transfers = new ArrayList<>();
+            while (result.next()) {
+                Transfer transfer = new Transfer();
+                transfer.setTransferId(result.getInt("transfer_id"));
+                transfer.setToUsername(result.getString("tousername"));
+                transfer.setFromUsername(result.getString("fromusername"));
+                transfer.setStatus(result.getString("status"));
+                transfer.setTransferAmount(result.getBigDecimal("transfer_amount"));
+                transfers.add(transfer);
+            }
+            return transfers;
+        }catch (DataAccessException e){
+            System.out.println(e);
         }
-        return transfers;
+        return null;
     }
 //
 
