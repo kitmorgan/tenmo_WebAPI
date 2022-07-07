@@ -18,6 +18,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.Principal;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -37,6 +39,14 @@ public class TransferController {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.transferDao = transferDao;
     }
+
+    @RequestMapping(path = "/transfers", method = RequestMethod.GET)
+    public List<Transfer> allTransfers(Principal principal){
+        List<Transfer> transfers = new ArrayList<>();
+        //TODO: complete this and jdbc transfers dao allTransfers
+        return transfers;
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/transfers/send", method = RequestMethod.POST)
     public void sendMoney(@RequestBody Transfer moneyTransfer, Principal principal){
