@@ -15,7 +15,7 @@ public interface TransferDao {
 
     public List<Transfer> pendingRequests (int userId);
 
-    public List<Transfer> allTransfers (int userId);
+    public List<Transfer> allTransfers (String username);
 
     public Transfer getTransferId (int transactionId);
 }

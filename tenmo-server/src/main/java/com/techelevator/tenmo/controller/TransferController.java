@@ -42,8 +42,7 @@ public class TransferController {
 
     @RequestMapping(path = "/transfers", method = RequestMethod.GET)
     public List<Transfer> allTransfers(Principal principal){
-        List<Transfer> transfers = new ArrayList<>();
-        //TODO: complete this and jdbc transfers dao allTransfers
+        List<Transfer> transfers = transferDao.allTransfers(principal.getName());
         return transfers;
     }
 
