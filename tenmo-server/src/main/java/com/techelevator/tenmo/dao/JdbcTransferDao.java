@@ -1,7 +1,9 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.exception.UsernameNotFoundException;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.SQLWarningException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +31,11 @@ public class JdbcTransferDao implements TransferDao {
         @Override
         public boolean sendTransfer (String fromUsername, String toUsername, BigDecimal transferAmount) {
                 if (checkBalance(fromUsername, transferAmount)) {
-                        String sql = "UPDATE account SET balance = account.balance - ? FROM account as ac JOIN tenmo_user as tu ON ac.user_id = tu.user_id WHERE username = '?';" +
-                                " UPDATE account SET balance = account.balance + ? FROM account as ac JOIN tenmo_user as tu ON ac.user_id = tu.user_id WHERE username = '?';";
-                        jdbcTemplate.update(sql, transferAmount, fromUsername, transferAmount, toUsername);
-                        jdbcTemplate.update(" INSERT INTO transfer (toUsername, fromUsername, status, transfer_amount) VALUES (?, ?, 'APPROVED', ?);", toUsername, fromUsername, transferAmount);
+                        String sql = "UPDATE account set balance = account.balance - ? FROM tenmo_user where tenmo_user.user_id = account.user_id AND username = ?;" +
+                                " UPDATE account set balance = account.balance + ? FROM tenmo_user where tenmo_user.user_id = account.user_id AND username = ?;" +
+                                " INSERT INTO transfer (toUsername, fromUsername, status, transfer_amount) VALUES (?, ?, 'APPROVED', ?);";
+
+                        jdbcTemplate.update(sql, transferAmount, fromUsername, transferAmount, toUsername, toUsername, fromUsername, transferAmount);
                         return true;
                 }
                 return false;

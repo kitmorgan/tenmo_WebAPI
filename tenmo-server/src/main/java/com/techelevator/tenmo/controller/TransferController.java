@@ -6,12 +6,18 @@ import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.namedparam.ParsedSql;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -32,12 +38,19 @@ public class TransferController {
         this.transferDao = transferDao;
     }
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(path = "/transfer/send", method = RequestMethod.POST)
-    public void sendMoney(@RequestBody Transfer moneyTransfer, Principal principal) throws Exception {
+    @RequestMapping(path = "/transfers/send", method = RequestMethod.POST)
+    public void sendMoney(@RequestBody Transfer moneyTransfer, Principal principal){
+        if(principal.getName().equals(moneyTransfer.getToUsername())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You just tried to send money to yourself! You don't need us to do that.");
+        }
         Boolean success = false;
-        success = transferDao.sendTransfer(principal.getName(), moneyTransfer.getToUsername(), moneyTransfer.getTransferAmount());
-        if (!success){
-            throw new Exception("Transfer Failed!");
+        try {
+            success = transferDao.sendTransfer(principal.getName(), moneyTransfer.getToUsername(), moneyTransfer.getTransferAmount());
+            if (!success) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transfer Failed!");
+            }
+        }catch (DataIntegrityViolationException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User "+ moneyTransfer.getToUsername() + " does not exist.");
         }
     }
 
