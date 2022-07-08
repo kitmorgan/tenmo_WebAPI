@@ -5,6 +5,7 @@ import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -41,6 +42,7 @@ public class TransferController {
         this.transferDao = transferDao;
     }
 
+    @ApiOperation("Returns a list of all transfers to and from the user")
     @RequestMapping(path = "/transfers", method = RequestMethod.GET)
     public List<Transfer> allTransfers(Principal principal) {
         try {
@@ -52,6 +54,7 @@ public class TransferController {
         }
     }
 
+    @ApiOperation("Send TE bucks to a specified user ('toUsername'), 'transferAmount' must be a positive value to a valid other user")
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/transfers/send", method = RequestMethod.POST)
     public void sendMoney(@RequestBody Transfer moneyTransfer, Principal principal) {
