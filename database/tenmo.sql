@@ -38,13 +38,13 @@ CREATE TABLE transfer (
 	toUsername varchar(50) NOT NULL,
 	fromUsername varchar(50) NOT NULL,
 	status varchar NOT NULL,
-	transfer_amount money NOT NULL,
+	transfer_amount decimal(13, 2) NOT NULL,
 	CONSTRAINT PK_transfer PRIMARY KEY (transfer_id),
 	CONSTRAINT FK_toUsername FOREIGN KEY (toUsername) REFERENCES tenmo_user (username),
 	CONSTRAINT FK_fromUsername FOREIGN KEY (fromUsername) REFERENCES tenmo_user (username),
 	CONSTRAINT CHK_statusValues CHECK (status IN ('APPROVED', 'REJECTED', 'PENDING')),
 	CONSTRAINT CHK_differentUsers CHECK (toUsername != fromUsername),
-	CONSTRAINT CHK_transferAmount CHECK (transfer_amount > CAST(0.00 AS money))
+	CONSTRAINT CHK_transferAmount CHECK (transfer_amount > 0.0)
 );
 
 INSERT INTO tenmo_user (username, password_hash) values ('patrickmorris', '$2a$10$xX/UuWqKOWI1XJ8f4uCU/uXCt8H2vW7rt/hKol9OggwmcGtbxN06S');
