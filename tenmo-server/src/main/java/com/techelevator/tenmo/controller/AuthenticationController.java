@@ -58,7 +58,7 @@ public class AuthenticationController {
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public void register(@Valid @RequestBody RegisterUserDTO newUser) {
         if (!userDao.create(newUser.getUsername(), newUser.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User registration failed.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User registration failed. Username may already exist.");
         }
     }
 
