@@ -7,6 +7,7 @@ import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.namedparam.ParsedSql;
@@ -42,10 +43,13 @@ public class TransferController {
 
     @RequestMapping(path = "/transfers", method = RequestMethod.GET)
     public List<Transfer> allTransfers(Principal principal) {
+        try {
+            List<Transfer> transfers = transferDao.allTransfers(principal.getName());
 
-        List<Transfer> transfers = transferDao.allTransfers(principal.getName());
-
-        return transfers;
+            return transfers;
+        }catch (DataRetrievalFailureException d){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Admin has been notified");
+        }
     }
 
     @ResponseStatus(HttpStatus.CREATED)

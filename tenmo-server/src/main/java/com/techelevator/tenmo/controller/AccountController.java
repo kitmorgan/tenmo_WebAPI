@@ -3,12 +3,15 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.UserInfo;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -31,11 +34,20 @@ public class AccountController {
 
     @RequestMapping(path = "/users", method = RequestMethod.GET)
     public List<UserInfo> userList() {
-        return userDao.getAllUserInfo();
+        try {
+            return userDao.getAllUserInfo();
+        } catch (DataIntegrityViolationException d) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
-    public BigDecimal getBalance(Principal principal){;
-        return userDao.getBalance(principal.getName());
+    public BigDecimal getBalance(Principal principal) {
+        ;
+        try {
+            return userDao.getBalance(principal.getName());
+        } catch (DataIntegrityViolationException d) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
