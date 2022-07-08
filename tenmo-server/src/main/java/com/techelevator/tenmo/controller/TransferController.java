@@ -3,6 +3,7 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
+import com.techelevator.tenmo.exception.TransactionNotFoundException;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
 import io.swagger.annotations.ApiOperation;
@@ -56,7 +57,7 @@ public class TransferController {
 
     @ApiOperation("Send TE bucks to a specified user ('toUsername'), 'transferAmount' must be a positive value to a valid other user")
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(path = "/transfers/send", method = RequestMethod.POST)
+    @RequestMapping(path = "/transfers/send/", method = RequestMethod.POST)
     public void sendMoney(@RequestBody Transfer moneyTransfer, Principal principal) {
         if (principal.getName().equals(moneyTransfer.getToUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You just tried to send money to yourself! You don't need us to do that.");
@@ -69,6 +70,20 @@ public class TransferController {
             }
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User " + moneyTransfer.getToUsername() + " does not exist.");
+        }
+    }
+
+    @RequestMapping(path = "transfers/{transferId}", method = RequestMethod.GET)
+    public Transfer getTransfersById(@PathVariable int transferId, Principal principal){
+        try {
+            Transfer transfer = transferDao.getTransferById(transferId);
+            if (principal.getName().equals(transfer.getToUsername()) || principal.getName().equals(transfer.getFromUsername())){
+                return transfer;
+            }else{
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Nunya");
+            }
+        } catch (Exception e){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
 

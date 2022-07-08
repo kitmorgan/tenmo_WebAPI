@@ -1,8 +1,10 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.exception.TransactionNotFoundException;
 import com.techelevator.tenmo.exception.UsernameNotFoundException;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.SQLWarningException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -68,25 +70,35 @@ public class JdbcTransferDao implements TransferDao {
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username, username);
             List<Transfer> transfers = new ArrayList<>();
             while (result.next()) {
-                Transfer transfer = new Transfer();
-                transfer.setTransferId(result.getInt("transfer_id"));
-                transfer.setToUsername(result.getString("tousername"));
-                transfer.setFromUsername(result.getString("fromusername"));
-                transfer.setStatus(result.getString("status"));
-                transfer.setTransferAmount(result.getBigDecimal("transfer_amount"));
-                transfer.setTimestamp(result.getString("timestamp"));
+                Transfer transfer = mapRowSetToTransfer(result);
                 transfers.add(transfer);
             }
             return transfers;
-        }catch (DataAccessException e){
+        } catch (DataAccessException e) {
             System.out.println(e);
         }
         return null;
     }
-//
 
     @Override
-    public Transfer getTransferId(int transactionId) {
-        return null;
+    public Transfer getTransferById(int transferId) throws TransactionNotFoundException {
+        String sql = "SELECT transfer_id, tousername, fromusername, status, transfer_amount, timestamp FROM transfer WHERE transfer_id = ?;";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transferId);
+        if (result.next()) {
+            return mapRowSetToTransfer(result);
+        } else {
+            throw new TransactionNotFoundException();
+        }
+    }
+
+    public Transfer mapRowSetToTransfer(SqlRowSet result) {
+        Transfer transfer = new Transfer();
+        transfer.setTransferId(result.getInt("transfer_id"));
+        transfer.setToUsername(result.getString("tousername"));
+        transfer.setFromUsername(result.getString("fromusername"));
+        transfer.setStatus(result.getString("status"));
+        transfer.setTransferAmount(result.getBigDecimal("transfer_amount"));
+        transfer.setTimestamp(result.getString("timestamp"));
+        return transfer;
     }
 }

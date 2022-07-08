@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.exception.TransactionNotFoundException;
 import com.techelevator.tenmo.model.Transfer;
 
 import java.math.BigDecimal;
@@ -17,5 +18,5 @@ public interface TransferDao {
 
     public List<Transfer> allTransfers (String username);
 
-    public Transfer getTransferId (int transactionId);
+    public Transfer getTransferById (int transferId) throws TransactionNotFoundException;
 }
