@@ -21,9 +21,7 @@ public class Transfer {
         this.status = "APPROVED";
     }
 
-    public Transfer(){
-
-    }
+    public Transfer(){    }
 
     public Transfer(int toUserId, int fromUserId, BigDecimal transferAmount, String status){
         this.toUsername = toUsername;

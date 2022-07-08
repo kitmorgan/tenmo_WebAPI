@@ -4,10 +4,13 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.exception.TransactionNotFoundException;
+import com.techelevator.tenmo.model.Request;
+import com.techelevator.tenmo.model.Respond;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
@@ -73,6 +77,7 @@ public class TransferController {
         }
     }
 
+    @ApiOperation("Get your transfers by id")
     @RequestMapping(path = "transfers/{transferId}", method = RequestMethod.GET)
     public Transfer getTransfersById(@PathVariable int transferId, Principal principal){
         try {
@@ -85,6 +90,40 @@ public class TransferController {
         } catch (Exception e){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ApiOperation("Request money")
+    @RequestMapping(path = "/transfers/requests", method = RequestMethod.POST)
+    public void requestMoney(@RequestBody @Valid Request request, Principal principal){
+        boolean success = transferDao.transferRequest(request, principal.getName());
+        if(!success) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request failed.");
+        }
+    }
+
+    @ApiOperation("Get a list of pending transfers")
+    @RequestMapping(path = "/transfers/requests", method = RequestMethod.GET)
+    public List<Transfer> getRequests(Principal principal){
+        try {
+            List<Transfer> transfers = transferDao.pendingRequests(principal.getName());
+            return transfers;
+        }catch (DataRetrievalFailureException d){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Admin has been notified");
+        }
+    }
+
+    @ApiOperation("Approve or reject a request")
+    @RequestMapping(path = "/transfers/requests", method = RequestMethod.PUT)
+    public void respondToRequest(Respond respond, Principal principal){
+        if(respond.getAccept()){
+            transferDao.acceptRequest(respond, principal.getName());
+        }else{
+            transferDao.rejectRequest();
+            //TODO: this should remove the request from transfer table in sql
+            throw new ResponseStatusException(HttpStatus.OK, "Request has been rejected");
+        }
+        //TODO: approve or reject
     }
 
 }

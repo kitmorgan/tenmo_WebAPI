@@ -3,6 +3,7 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.UserInfo;
 import com.techelevator.tenmo.security.jwt.TokenProvider;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,7 +32,7 @@ public class AccountController {
         this.userDao = userDao;
     }
 
-
+    @ApiOperation("See a list of users")
     @RequestMapping(path = "/users", method = RequestMethod.GET)
     public List<UserInfo> userList() {
         try {
@@ -41,6 +42,7 @@ public class AccountController {
         }
     }
 
+    @ApiOperation("Check your balance")
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
     public BigDecimal getBalance(Principal principal) {
         ;

@@ -2,6 +2,8 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.exception.TransactionNotFoundException;
 import com.techelevator.tenmo.exception.UsernameNotFoundException;
+import com.techelevator.tenmo.model.Request;
+import com.techelevator.tenmo.model.Respond;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -30,8 +32,30 @@ public class JdbcTransferDao implements TransferDao {
     }
 
     @Override
-    public String transferRequest(String fromUsername, String toUsername, BigDecimal total) {
-        return null;
+    public boolean acceptRequest(Respond respond, String fromUsername) {
+        String sql = "UPDATE account set balance = account.balance - ? FROM tenmo_user where tenmo_user.user_id = account.user_id AND username = ?;" +
+                " UPDATE account set balance = account.balance + ? FROM tenmo_user where tenmo_user.user_id = account.user_id AND username = ?;" +
+                " UPDATE transfer set status = approved, timestamp = now() where transfer_id = ?";
+        try {
+            jdbcTemplate.update(sql, respond.getAmount(), fromUsername, respond.getAmount(), respond.getRequesterUsername(), respond.getTransferId());
+            return true;
+        } catch (DataAccessException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean rejectRequest(){ return false; }
+
+    @Override
+    public boolean transferRequest(Request request, String toUsername) {
+        String sql = "INSERT INTO transfer (toUsername, fromUsername, status, transfer_amount) VALUES (?, ?, 'PENDING', ?);";
+        try{
+            jdbcTemplate.update(sql, toUsername, request.getFromUsername(), request.getTransferAmount());
+            return true;
+        }catch (DataAccessException e){
+            return false;
+        }
     }
 
     @Override
@@ -59,7 +83,19 @@ public class JdbcTransferDao implements TransferDao {
     }
 
     @Override
-    public List<Transfer> pendingRequests(int userId) {
+    public List<Transfer> pendingRequests(String username) {
+        try {
+            String sql = "select transfer_id, tousername, fromusername, status, transfer_amount, timestamp from transfer WHERE (tousername = ? OR fromusername = ?) AND status = 'PENDING' ORDER BY fromusername = ? DESC, timestamp;";
+            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username, username, username);
+            List<Transfer> transfers = new ArrayList<>();
+            while (result.next()) {
+                Transfer transfer = mapRowSetToTransfer(result);
+                transfers.add(transfer);
+            }
+            return transfers;
+        } catch (DataAccessException e) {
+            System.out.println(e);
+        }
         return null;
     }
 
