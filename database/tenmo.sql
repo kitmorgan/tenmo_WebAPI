@@ -39,6 +39,7 @@ CREATE TABLE transfer (
 	fromUsername varchar(50) NOT NULL,
 	status varchar NOT NULL,
 	transfer_amount decimal(13, 2) NOT NULL,
+	timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
 	CONSTRAINT PK_transfer PRIMARY KEY (transfer_id),
 	CONSTRAINT FK_toUsername FOREIGN KEY (toUsername) REFERENCES tenmo_user (username),
 	CONSTRAINT FK_fromUsername FOREIGN KEY (fromUsername) REFERENCES tenmo_user (username),

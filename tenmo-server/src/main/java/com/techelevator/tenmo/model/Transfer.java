@@ -12,6 +12,7 @@ public class Transfer {
     private String fromUsername;
     private BigDecimal transferAmount;
     private String status;
+    private String timestamp;
 
     public Transfer(String toUsername, String fromUsername, BigDecimal transferAmount){
         this.toUsername = toUsername;
@@ -33,6 +34,14 @@ public class Transfer {
 
     public int getTransferId() {
         return transferId;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
     }
 
     public void setTransferId(int transferId) {

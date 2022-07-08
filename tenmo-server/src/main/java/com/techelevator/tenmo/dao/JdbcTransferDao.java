@@ -64,7 +64,7 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public List<Transfer> allTransfers(String username) {
         try {
-            String sql = "select transfer_id, tousername, fromusername, status, transfer_amount from transfer WHERE tousername = ? OR fromusername = ?;";
+            String sql = "select transfer_id, tousername, fromusername, status, transfer_amount, timestamp from transfer WHERE tousername = ? OR fromusername = ?;";
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username, username);
             List<Transfer> transfers = new ArrayList<>();
             while (result.next()) {
@@ -74,6 +74,7 @@ public class JdbcTransferDao implements TransferDao {
                 transfer.setFromUsername(result.getString("fromusername"));
                 transfer.setStatus(result.getString("status"));
                 transfer.setTransferAmount(result.getBigDecimal("transfer_amount"));
+                transfer.setTimestamp(result.getString("timestamp"));
                 transfers.add(transfer);
             }
             return transfers;
