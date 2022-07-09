@@ -11,24 +11,12 @@ public class Transfer {
     private String toUsername;
     private String fromUsername;
     private BigDecimal transferAmount;
+    private String message;
     private String status;
     private String timestamp;
 
-    public Transfer(String toUsername, String fromUsername, BigDecimal transferAmount){
-        this.toUsername = toUsername;
-        this.fromUsername = fromUsername;
-        this.transferAmount = transferAmount;
-        this.status = "APPROVED";
-    }
-
     public Transfer(){    }
 
-    public Transfer(int toUserId, int fromUserId, BigDecimal transferAmount, String status){
-        this.toUsername = toUsername;
-        this.fromUsername = fromUsername;
-        this.transferAmount = transferAmount;
-        this.status = "PENDING";
-    }
 
     public int getTransferId() {
         return transferId;
@@ -68,6 +56,15 @@ public class Transfer {
 
     public void setTransferAmount(BigDecimal transferAmount) {
         this.transferAmount = transferAmount;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getStatus() {
