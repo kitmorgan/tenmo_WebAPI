@@ -37,6 +37,7 @@ CREATE TABLE transfer (
 	transfer_id serial,
 	toUsername varchar(50) NOT NULL,
 	fromUsername varchar(50) NOT NULL,
+	message varchar(250),
 	status varchar NOT NULL,
 	transfer_amount decimal(13, 2) NOT NULL,
 	timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
