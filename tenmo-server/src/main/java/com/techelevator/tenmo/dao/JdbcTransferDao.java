@@ -63,9 +63,9 @@ public class JdbcTransferDao implements TransferDao {
     @ResponseStatus(HttpStatus.CREATED)
     @Override
     public boolean transferRequest(Request request, String toUsername) {
-        String sql = "INSERT INTO transfer (toUsername, fromUsername, status, transfer_amount) VALUES (?, ?, 'PENDING', ?);";
+        String sql = "INSERT INTO transfer (toUsername, fromUsername, message, status, transfer_amount) VALUES (?, ?, ?, 'PENDING', ?);";
         try{
-            jdbcTemplate.update(sql, toUsername, request.getFromUsername(), request.getTransferAmount());
+            jdbcTemplate.update(sql, toUsername, request.getFromUsername(), request.getMessage(), request.getTransferAmount());
             return true;
         }catch (DataAccessException e){
             return false;
@@ -99,7 +99,7 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public List<Transfer> pendingRequests(String username) {
         try {
-            String sql = "select transfer_id, tousername, fromusername, status, transfer_amount, timestamp from transfer WHERE (tousername = ? OR fromusername = ?) AND status = 'PENDING' ORDER BY fromusername = ? DESC, timestamp;";
+            String sql = "select transfer_id, tousername, fromusername, message, status, transfer_amount, timestamp from transfer WHERE (tousername = ? OR fromusername = ?) AND status = 'PENDING' ORDER BY fromusername = ? DESC, timestamp;";
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username, username, username);
             List<Transfer> transfers = new ArrayList<>();
             while (result.next()) {
@@ -143,7 +143,7 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public boolean checkValidResponder(String fromUsername, int transferId) {
-        String sql = "SELECT count(*) FROM transfer JOIN tenmo_user as tu ON tu.username = transfer.fromusername WHERE fromusername = ? and transfer_id = ?;";
+        String sql = "SELECT count(*) FROM transfer JOIN tenmo_user as tu ON tu.username = transfer.fromusername WHERE fromusername = ? and transfer_id = ? AND status='PENDING';";
         try{
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, fromUsername, transferId);
             if(result.next()){
