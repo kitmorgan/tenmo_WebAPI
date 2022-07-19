@@ -33,19 +33,12 @@ import java.util.List;
 @PreAuthorize("isAuthenticated()")
 public class TransferController {
 
-    private final TokenProvider tokenProvider;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
-    @Autowired
     private UserDao userDao;
-
-    @Autowired
     private TransferDao transferDao;
 
-    public TransferController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, TransferDao transferDao) {
-        this.tokenProvider = tokenProvider;
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
+    public TransferController(UserDao userdao, TransferDao transferDao) {
         this.transferDao = transferDao;
+        this.userDao = userdao;
     }
 
     @ApiOperation("Returns a list of all transfers to and from the user")
@@ -115,8 +108,8 @@ public class TransferController {
         }
     }
 
-    @ResponseStatus
-    @ApiOperation("Approve or reject a request")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ApiOperation("Approve or reject a request, 202 on accepted, 200 on successful rejection")
     @RequestMapping(path = "/transfers/requests", method = RequestMethod.PUT)
     public void respondToRequest(@RequestBody @Valid Respond respond, Principal principal) {
         if (!transferDao.checkValidResponder(principal.getName(), respond.getTransferId())) {
@@ -124,7 +117,6 @@ public class TransferController {
         }
         if (respond.getAccept()) {
             transferDao.acceptRequest(respond, principal.getName());
-            throw new ResponseStatusException(HttpStatus.ACCEPTED, "Transfer complete.");
         } else if (!respond.getAccept()) {
             transferDao.rejectRequest(respond);
             throw new ResponseStatusException(HttpStatus.OK, "Request has been rejected");
